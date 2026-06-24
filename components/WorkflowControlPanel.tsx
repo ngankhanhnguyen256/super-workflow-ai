@@ -3,22 +3,36 @@
 import React from "react";
 import { Play, RotateCcw, Download } from "lucide-react";
 import { useWorkflowStore } from "@/store/useWorkflowStore";
+import { WorkflowExecutor } from "@/services/WorkflowExecutor";
 
 export default function WorkflowControlPanel() {
   const { nodes, edges, setNodes, setEdges, setRunning } = useWorkflowStore();
 
   const onRun = async () => {
-    setRunning(true);
+    try {
+      setRunning(true);
 
-    // Placeholder execution (Phase 5 will replace with real engine)
-    console.log("Running workflow...");
-    console.log("Nodes:", nodes);
-    console.log("Edges:", edges);
+      console.log("🚀 Running workflow...");
 
-    setTimeout(() => {
+      const results = await WorkflowExecutor.run(nodes as any, edges as any);
+
+      console.log("✅ Workflow Results:", results);
+
+      const updatedNodes = nodes.map((n: any) => ({
+        ...n,
+        data: {
+          ...n.data,
+          output: results[n.id] || null
+        }
+      }));
+
+      setNodes(updatedNodes);
+
       setRunning(false);
-      console.log("Workflow finished");
-    }, 1500);
+    } catch (err) {
+      console.error("Workflow error:", err);
+      setRunning(false);
+    }
   };
 
   const onReset = () => {
@@ -27,18 +41,15 @@ export default function WorkflowControlPanel() {
   };
 
   const onExport = () => {
-    const data = {
-      nodes,
-      edges
-    };
+    const data = { nodes, edges };
 
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: "application/json"
     });
 
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
+
     a.href = url;
     a.download = "workflow.json";
     a.click();
