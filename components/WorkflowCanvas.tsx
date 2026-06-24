@@ -14,6 +14,7 @@ import ReactFlow, {
 } from "@xyflow/react";
 
 import { useWorkflowStore } from "@/store/useWorkflowStore";
+import { nodeTypes } from "@/lib/nodeTypes";
 
 const initialNodes: Node[] = [
   {
@@ -52,6 +53,7 @@ export default function WorkflowCanvas() {
       <ReactFlow
         nodes={rfNodes}
         edges={rfEdges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
