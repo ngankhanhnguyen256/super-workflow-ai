@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
 
-// MVP fake user DB (replace with real DB later)
 const USERS = [
   {
     id: "1",
@@ -37,13 +36,22 @@ export async function POST(req: Request) {
       email: user.email
     });
 
-    return NextResponse.json({
-      token,
+    const res = NextResponse.json({
       user: {
         id: user.id,
         email: user.email
       }
     });
+
+    // ✅ FIX DEPLOY: HttpOnly cookie cho middleware Vercel
+    res.cookies.set("token", token, {
+      httpOnly: true,
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production"
+    });
+
+    return res;
   } catch (err: any) {
     return NextResponse.json(
       { error: "Login failed", detail: err.message },
