@@ -18,18 +18,23 @@ export default function LoginPage() {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          password
+        })
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data?.error || "Login failed");
-      }
 
       const data = await res.json();
 
-      localStorage.setItem("token", data.token);
+      if (!res.ok) {
+        throw new Error(data?.error || "Login failed");
+      }
+
+      // ✅ FIX: KHÔNG dùng localStorage nữa
+      // token đã được set bằng HttpOnly cookie từ backend
 
       router.push("/");
     } catch (err: any) {
@@ -41,18 +46,21 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="w-full max-w-md p-6 bg-[#111] border border-[#333] rounded-xl">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+      <div className="w-full max-w-md p-6 rounded-xl border border-[#333] bg-[#111]">
+        
+        <h1 className="text-2xl font-bold text-center mb-6">
+          AI Workflow Login
+        </h1>
 
         <input
-          className="w-full mb-3 p-2 bg-black border border-[#333] rounded"
+          className="w-full mb-3 p-3 rounded bg-black border border-[#333]"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
-          className="w-full mb-3 p-2 bg-black border border-[#333] rounded"
+          className="w-full mb-3 p-3 rounded bg-black border border-[#333]"
           type="password"
           placeholder="Password"
           value={password}
@@ -60,16 +68,22 @@ export default function LoginPage() {
         />
 
         {error && (
-          <div className="text-red-400 text-sm mb-3">{error}</div>
+          <div className="text-red-400 text-sm mb-3">
+            {error}
+          </div>
         )}
 
         <button
           onClick={handleLogin}
           disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-500 py-2 rounded font-semibold"
+          className="w-full bg-green-600 hover:bg-green-500 py-3 rounded font-semibold transition"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        <div className="text-xs text-gray-500 mt-4 text-center">
+          demo: admin@ai.com / 123456
+        </div>
       </div>
     </div>
   );
